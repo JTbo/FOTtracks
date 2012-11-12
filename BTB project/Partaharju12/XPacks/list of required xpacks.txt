@@ -1,0 +1,17 @@
+Track will not probably load in BTB if one of these is missing:
+CK-Tools.zip
+Default.zip
+Ennis_Extras.zip
+European_Road_Elements.zip
+HungarianXpack.zip
+Objects_Poland.zip
+PL_Vegetation.zip
+PlainTrucks.zip
+Road Mid.zip
+Rural Australia.zip
+Tree Collection.zip
+trees xpack.zip
+
+Also required but included in repo:
+Common.zip (I created to have a map of track)
+Nokanmov.zip (I created from Nokanmov's released textures, includes Pine tree) 

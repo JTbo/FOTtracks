@@ -1,0 +1,263 @@
+// This file defines terrain feedback and special effects.
+//
+// Note that the dry/wet coefficients are only part of the grip equation ... the tyre
+// grip also has dry/wet components, so that even if a terrain has equal dry and wet
+// components, the tyre grip may be less in the wet, depending on the tyre.
+//
+// Rainspray parameters:
+// Scale is the starting size.
+// Growth is the size difference from start to end.
+// GrowthVel is the increase in size difference due to velocity.
+// Power defines the curve from start to ending size.
+// RampSpeed reduces rainspray alpha under the given speed.
+// OffsetVel is the starting position relative to the vehicle (in direction of velocity).
+//
+// Dust parameter TopSpeed specifies the vehicle speed (in m/s) at which the dust
+// alpha will be maximized.  The default is 104.0 which would be lowered if thicker
+// dust is desired.
+//
+// Max number of effects can now be specified as either an explicit number, or
+// the token "NumWaypoints" which equals the number of waypoints on the particular
+// track.
+//
+// Enable sparks by increasing the "Max" variable for Reaction=spark.  Also set
+// "Sparks=1" on appropriate terrains.  Also check player file entry "Vehicle Sparks".
+//
+// All texture maps and e-maps are assumed to be .BMP unless otherwise specified.
+// We support .TGA, .JPG.
+//
+// NEW: some of these names may have changed
+//
+// Available: Shader=NoShade+FlatShade+GouraudShade+AlphaChannel+Specular+EnvirMap+GlobalShadow
+//   Default: Shader=AlphaChannel+GouraudShade+GlobalShadow
+//
+// Available: Pixel=NoReduceDetail+ChromaKey
+//   Default: Pixel=
+//
+//   Default: Chroma=0x00000000 (4-byte hexadecimal color value)
+//   Default: Color=0x80ffffff (4-byte hexadecimal color value)
+//
+// Available: Particle=Plane+Box+Cross+MTSFile+Stamps+Billboards+Deformable+SingleSided+AlphaFade
+//   Default: Particle=Plane+Stamps+SingleSided
+//
+// Available: DestBlend or SrcBlend=Zero/One/SrcColor/InvSrcColor/SrcAlpha/InvSrcAlpha/DstColor/InvDstColor/DstAlpha/InvDstAlpha
+//   Default: DestBlend=InvSrcColor SrcBlend=One
+//
+// The "Materials" specifies what materials to apply this feedback to.  It matches the FIRST PART of the name,
+// so the line "Materials=road" matches any material starting with "road", including "roada", "roadblock", etc.
+//
+// "Track variables" can be adjusted on a per-track basis by putting the value in the track GDB file.
+// This section defines the track variable names and their default values, then the track variable
+// names are used below in the FEEDBACK sections ... note that no spaces are allowed in the name nor
+// around the equal sign.
+
+[TRACKVARS]
+RoadDryGrip=1.00
+RoadWetGrip=0.85
+RoadmetalGrip=0.80
+RoadDustGrip=0.90
+RoadBumpAmp=0.001
+RoadBumpLen=3.0
+RumbleDryGrip=0.96
+RumbleWetGrip=0.60
+RumbleBumpAmp=0.001
+RumbleBumpLen=3.0
+MiscBumpAmp=0.07
+MiscBumpLen=4.0
+HATFilterMaxOffset=0.007
+
+
+////////////////////////////////////////////////////ROADS////////////////////////////////////////////////////////
+
+// Roads
+[FEEDBACK]
+Wear=1.00 Dry=1.00 Wet=0.84 Resistance=0.0 BumpAmp=RoadBumpAmp BumpWavelen=RoadBumpLen Legal=true Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=1 Scraping=1 Sound=dry
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=road
+
+// New Asphalt
+[FEEDBACK]
+Wear=1.05 Dry=1.04 Wet=0.89 Resistance=0.0 BumpAmp=0.001 BumpWavelen=RoadBumpLen Legal=true Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=1 Scraping=1 Sink=-0.004 Sound=dry
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=asph
+
+// Old Asphalt
+[FEEDBACK]
+Wear=1.02 Dry=0.99 Wet=0.8 Resistance=0.0 BumpAmp=0.001 BumpWavelen=RoadBumpLen Legal=true Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=1 Scraping=1 Sink=0.003 Sound=dry
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=oasp
+
+// Bumpy road 1      //Bumps for Cracked Surface
+[FEEDBACK]
+Wear=1.00 Dry=0.96 Wet=0.81 Resistance=0.0 BumpAmp=0.008 BumpWavelen=0.3 Legal=true Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=1 Scraping=1 Sound=dry
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=bpCS
+
+// Bumpy road 2      //Bumps for pot holes
+[FEEDBACK]
+Wear=1.00 Dry=0.96 Wet=0.81 Resistance=0.0 BumpAmp=0.008 BumpWavelen=0.5 Legal=true Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=1 Scraping=1 Sink=0.008 Sound=dry
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=bpPH
+
+// Bumpy road 3      //Bumps for asphalt patches
+[FEEDBACK]
+Wear=1.00 Dry=0.98 Wet=0.83 Resistance=0.0 BumpAmp=0.004 BumpWavelen=0.5 Legal=true Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=1 Scraping=1 Sink=-0.004 Sound=dry
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=bpAP
+
+//Oval roads
+[FEEDBACK]
+Dry=RoadDryGrip Wet=RoadWetGrip Resistance=0.0 BumpAmp=0.001 BumpWavelen=RoadBumpLen Legal=true Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=1 Scraping=1 Sound=dry
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=ovalrd
+
+// Road Cement Patchs
+[FEEDBACK]
+Wear=1.1 Dry=1.04 Wet=0.8 Resistance=0.0 BumpAmp=RoadBumpAmp BumpWavelen=RoadBumpLen Legal=true Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=1 Scraping=1 Sink=0.003 Sound=dry
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+//Reaction=dust Tex=Dustroad.tga Max=128 TopSpeed=104.0 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=rdcp
+
+// Paint
+[FEEDBACK]
+Wear=0.85 Dry=0.85 Wet=0.50 Roughness=(0.40,0.15) Resistance=0.0 BumpAmp=0.002 BumpWavelen=5.0 Legal=true Spring=0.0 Damper=0.0 CollFrict=0.2 Sparks=1 Scraping=1 OnTop=0.0015 Sound=dry
+Reaction=tiresmoke Tex=SMOKETire.tga Max=1024 Scale=(0.5,0.5,0.5) Growth=(2.5,2.0,2.0) ASDEnvelope=(0.1,0.7,3.8) Suspension=0.98 DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=strp
+
+///////////////////////////////////////////////Dirt and Grass////////////////////////////////////////////////
+
+// Dusty berms
+[FEEDBACK]
+Wear=0.70 Dry=0.65 Wet=0.50 Resistance=300.0 BumpAmp=0.04 BumpWavelen=1.5 Legal=False Spring=100.0 Damper=100.0 CollFrict=0.6 Sparks=1 Scraping=1 Sink=0.03 Sound=grass
+Reaction=dust Tex=Dustroad.tga Max=128 TopSpeed=104.0 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=softskid Tex=skidbrown.tga Max=1024 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=rged
+
+// Grass
+[FEEDBACK]
+Wear=0.6 Dry=0.55 Wet=0.40 Resistance=600.0 BumpAmp=0.06 BumpWavelen=1.5 Legal=false Spring=100.0 Damper=100.0 CollFrict=1.6 Sparks=0 Scraping=0 Sink=0.035 Sound=grass
+Reaction=softskid Tex=skidgreen.tga Max=1024 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=dust Tex=DustBrown.tga Max=128 TopSpeed=104.0 Scale=(0.75,0.75,0.75) Growth=(2.0,2.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=gras
+
+// rough Grass
+[FEEDBACK]
+Wear=0.65 Dry=0.5 Wet=0.35 Resistance=1000.0 BumpAmp=0.07 BumpWavelen=1.5 Legal=false Spring=100.0 Damper=100.0 CollFrict=2.0 Sparks=0 Scraping=0 Sink=0.04 Sound=grass
+Reaction=softskid Tex=skidgreen.tga Max=1024 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=dust Tex=DustBrown.tga Max=128 TopSpeed=104.0 Scale=(0.75,0.75,0.75) Growth=(2.0,2.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=grxs
+
+// Gravel
+[FEEDBACK]
+Wear=0.80 Dry=0.4 Wet=0.3 Resistance=40000.00 BumpAmp=0.06 BumpWavelen=1.0 Legal=false Spring=200.0 Damper=200.0 CollFrict=5.0 Sparks=0 Scraping=0 Sink=0.07 Sound=gravel
+Reaction=dust Tex=Dustroad.tga Max=128 TopSpeed=104.0 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=dirt Tex=Dustroad.tga Max=32 Scale=(0.5,0.5,0.5) Growth=(0.8,0.8,0.8) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=softskid Tex=skidbrown.tga Max=1024 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=grvl
+
+// Dusty Grass
+[FEEDBACK]
+Wear=0.40 Dry=0.50 Wet=0.30 Resistance=100.0 BumpAmp=0.055 BumpWavelen=1.5 Legal=false Spring=100.0 Damper=100.0 CollFrict=1.3 Sparks=0 Scraping=0 Sink=0.035 Sound=grass
+Reaction=softskid Tex=skidgreen.tga Max=1024 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=dust Tex=Dustroad.tga Max=128 TopSpeed=104.0 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=dstg
+
+
+//////////////////////////////////////////////////RUMBLE STRIPS////////////////////////////////////////////////////
+
+// Rumblestrips
+[FEEDBACK]
+Wear=0.98 Dry=0.90 Wet=0.60 Resistance=10.0 BumpAmp=0.001 BumpWavelen=3.0 Legal=false Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=0 Scraping=1 Sink=-0.001 Sound=rumble
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=rmbl
+
+// Dusty Rumblestrips
+[FEEDBACK]
+Wear=0.98 Dry=0.90 Wet=0.60 Resistance=10.0 BumpAmp=0.001 BumpWavelen=3.0 Legal=false Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=0 Scraping=1 Sink=-0.001 Sound=rumble
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=dust Tex=Dustroad.tga Max=128 TopSpeed=104.0 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=drmb
+
+// Cobblestone (fake bumping added)
+[FEEDBACK]
+Wear=0.90 Dry=0.80 Wet=0.56 Resistance=20.0 BumpAmp=0.008 BumpWavelen=0.3 Legal=true Spring=0.0 Damper=0.0 CollFrict=0.4 Sparks=1 Scraping=1 Sink=-0.005 Sound=rumble
+Reaction=tiresmoke Tex=smokewhite.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(4.0,3.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=skid Tex=skidhard.tga Max=2500 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wetskid Tex=skidwet.tga Max=1024 Duration=0.40 Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=spray Tex=rainspray.tga Max=1024 Scale=(0.3,0.05,0.6) Growth=(0.3,0.3,0.6) GrowthVel=(0.08,0.09,0.30) Power=0.41 RampSpeed=80.0 OffsetVel=0.10 ASDEnvelope=(0.05,0.07,0.90) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Materials=cobl
+
+
+/////////////////////////////////////////////////////WALLS/////////////////////////////////////////////////////////
+
+// Tirewalls
+[FEEDBACK]
+Legal=false Spring=5000.0 Damper=500.0 CollFrict=2.00 Sparks=0 Scraping=0 WallSkids=1 InsideColl=Secondary\haybale_in OutsideColl=Secondary\haybale_ex
+Materials=twal
+
+// Hay Bayles
+[FEEDBACK]
+Legal=false Spring=7000.0 Damper=400.0 CollFrict=0.80 Sparks=0 Scraping=0 WallSkids=1 InsideColl=Secondary\haybale_in OutsideColl=Secondary\haybale_ex
+Materials=HayB
+
+// Woodwalls
+[FEEDBACK]
+Legal=false Spring=1000.0 Damper=4500.0 CollFrict=0.90 Sparks=0 Scraping=1 WallSkids=1 InsideColl=Secondary\haybale_in OutsideColl=Secondary\haybale_ex
+Materials=wwal
+
+// Cementwalls (spring/damper = 0 for immovable objects)
+[FEEDBACK]
+Legal=false Spring=0.0 Damper=0.0 CollFrict=0.18 Sparks=0 whitesmoke=1 Scraping=1 Wallskids=1 Sound=solidwall
+Materials=cem,wall,cmwl
+
+// Guardrails (spring/damper = 0 for immovable objects)
+[FEEDBACK]
+Legal=false Spring=0.0 Damper=0.0 CollFrict=0.10 Sparks=1 Scraping=1 Wallskids=1 Sound=guardrail
+Materials=grdr
+
+// SAFER Walls (spring/damper = 0 for immovable objects)
+[FEEDBACK]
+Legal=false Spring=1000.0 Damper=2000.0 CollFrict=0.10 Sparks=1 Scraping=1 Wallskids=1 Sound=guardrail
+Materials=safer
+
+// Other loose special effects
+[LOOSE]
+Reaction=spark Tex=spark.tga Max=256 Duration=0.6 Scale=(.08,.05,.05) Particle=Plane+Deformable DestBlend=InvSrcAlpha SrcBlend=SrcAlpha Shader=AlphaChannel+NoShade
+Reaction=whitesmoke Tex=smokewhite.tga Max=256 Scale=(1.0,1.0,1.0) Growth=(2.0,2.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=blacksmoke Tex=smokeblack.tga Max=1024 Scale=(1.0,1.0,1.0) Growth=(2.0,2.0,2.0) ASDEnvelope=(2.0,0.2,3.5) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=flames Tex=fire.tga Max=256 Scale=(0.40,0.40,0.40) Growth=(1.5,1.5,1.5) ASDEnvelope=(0.15,0.17,0.4) DestBlend=InvSrcAlpha SrcBlend=SrcAlpha Shader=AlphaChannel+NoShade
+//Reaction=groove Tex=racegroove.tga Max=NumWaypoints Shader=NoShade+AlphaChannel Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
+Reaction=wallskid Tex=skidwall.tga Max=128 Scale=(3.25,1.10,1.0) Pixel=NoReduceDetail Particle=Plane+Deformable+SingleSided DestBlend=InvSrcAlpha SrcBlend=SrcAlpha
